@@ -20,7 +20,7 @@ public class DataBaseConfig {
         final SqlSessionFactoryBean sessionFactory = new SqlSessionFactoryBean();
         sessionFactory.setDataSource(dataSource);
         PathMatchingResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
-        sessionFactory.setMapperLocations(resolver.getResources("classpath:com/furiganahub/api/dao/*.xml"));
+        sessionFactory.setMapperLocations(resolver.getResources("classpath:sql/*.xml"));
         return sessionFactory.getObject();
     }
     

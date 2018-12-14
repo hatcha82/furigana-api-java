@@ -1,21 +1,35 @@
 package com.furiganahub.api.service;
 
 import java.util.HashMap;
-import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.furiganahub.api.dao.DbMapper;
+import com.furiganahub.api.dao.DbDao;
+
 @Service
 public class DbService {
 	@Autowired
-    DbMapper dbMapper;
-    public String getDual() throws Exception{
-        return dbMapper.getDual();
-    }
-	public List<HashMap<String, Object>> getBibleAll() {
-		 return dbMapper.getBibleAll();
+	DbDao dbMapper;
+
+	public Object selectOne(String mapperId, HashMap<String, Object> param) {
+		return dbMapper.selectOne(mapperId, param);
+	}
+
+	public Object selectList(String mapperId, HashMap<String, Object> param) {
+		return dbMapper.selectList(mapperId, param);
+	}
+
+	public Object insert(String mapperId, HashMap<String, Object> param) {
+		return dbMapper.insert(mapperId, param);
+	}
+
+	public Object update(String mapperId, HashMap<String, Object> param) {
+		return dbMapper.update(mapperId, param);
+	}
+
+	public Object delete(String mapperId, HashMap<String, Object> param) {
+		return dbMapper.delete(mapperId, param);
 	}
 
 }
