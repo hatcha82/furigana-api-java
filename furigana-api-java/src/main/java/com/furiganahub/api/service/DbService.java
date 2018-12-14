@@ -32,4 +32,12 @@ public class DbService {
 		return dbMapper.delete(mapperId, param);
 	}
 
+	public Object excuteSP(String string, HashMap<String, Object> param) {
+		String PROCEDURE_STR = "PCM_GRID_MASTER_L004('SELECT 1;')";
+		param.put("PROCEDURE_STR", PROCEDURE_STR);
+
+		param.put("RESULT_SET", dbMapper.selectList("com.furiganahub.api.dao.DbDao.procedureQuery", param));
+		return param;
+	}
+
 }
