@@ -3,7 +3,7 @@
 <mapper namespace="com.furiganahub.api.dao.SongDao">
  
     <!-- /* select dual */ -->
-    <select id="getDual" resultType="java.lang.String">
+    <select id="getNow" resultType="java.lang.String">
         SELECT NOW()
     </select>
  	<select id="getBible" parameterType="HashMap" resultType="HashMap">
