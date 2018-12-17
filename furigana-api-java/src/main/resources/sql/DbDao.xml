@@ -9,9 +9,9 @@
         SELECT NOW()
     </select>
  	<select id="getBible" parameterType="HashMap" resultType="HashMap">
-        SELECT 	*
-        FROM	SEQ_OBJECT_SID
-        limit 	30
+        SELECT 	id, title, artist,lyrics
+        FROM	Songs
+        limit 	${limit}     
     </select>
     <select id="procedureQuery" statementType="CALLABLE" parameterType="HashMap" resultType="ResultSet">
     	{ call ${PROCEDURE_STR} }
