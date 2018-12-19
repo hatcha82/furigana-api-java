@@ -1,6 +1,9 @@
 package com.furiganahub.api.common.controller;
 
+import java.util.HashMap;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,6 +20,18 @@ import com.furiganahub.api.common.service.DBService;
 public class DevReqeustController {
 	@Autowired
 	DBService dbService;
+
+	@GetMapping("/excelExport/{queryId}")
+	public void excelExport(HttpServletResponse response, @PathVariable String queryId,
+			@RequestParam HashMap<String, Object> param) {
+		dbService.excelExport(response, queryId, param);
+	}
+
+	@PostMapping("/excelExport/{queryId}")
+	public void excelExportPost(HttpServletResponse response, @PathVariable String queryId,
+			@RequestBody HashMap<String, Object> param) {
+		dbService.excelExport(response, queryId, param);
+	}
 
 	@GetMapping("/getPathParamEcho/{value}")
 	public Object getPathParamEcho(@PathVariable Object value) throws Exception {

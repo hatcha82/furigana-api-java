@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="common">
+<mapper namespace="com.furiganahub.api.common">
     <!-- /* select dual */ -->
     <select id="getEcho" parameterType="HashMap"  resultType="Object">
     	SELECT #{ECHO_TEXT} ECHO_TEXT
@@ -11,14 +11,10 @@
     <select id="getNow" parameterType="HashMap"  resultType="Object">
         SELECT NOW() NOW
     </select>
- 	<select id="SEQ_OBJECT_SID" parameterType="HashMap" resultType="HashMap">
-        SELECT 	*
+ 	<select id="SEQ_OBJECT_SID" parameterType="HashMap" resultType="java.util.LinkedHashMap">
+        SELECT 	ID, 'TEST' TEST1, 33 TEST3, 'TEST2' TEST2 
         FROM	SEQ_OBJECT_SID   
     </select>
-    <select id="procedureQuery" statementType="CALLABLE" parameterType="HashMap" resultType="ResultSet">
-    	{ call ${PROCEDURE_STR} }
-    </select>
-    
     <select id="procedureMeta" resultType="HashMap">
     	SELECT   SPECIFIC_SCHEMA
             ,    SPECIFIC_NAME          SP_FULL_NAME
@@ -27,7 +23,7 @@
             ,    PARAMETER_NAME         ARGUMENT_NAME
             ,    DATA_TYPE              DATA_TYPE              
         FROM     INFORMATION_SCHEMA.PARAMETERS
-        WHERE    SPECIFIC_NAME     =    #{PROCEDURE_NAME}
+        WHERE    SPECIFIC_NAME     =    #{I_SP_FULL_NAME}
         AND      ROUTINE_TYPE      =    'PROCEDURE'
         AND		 SPECIFIC_SCHEMA   =    DATABASE()
         ORDER

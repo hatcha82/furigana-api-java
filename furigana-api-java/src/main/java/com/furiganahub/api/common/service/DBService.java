@@ -9,12 +9,14 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.poi.ss.usermodel.Cell;
@@ -32,27 +34,27 @@ public class DBService {
 	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
 
-	public Object selectOne(String mapperId, HashMap<String, Object> param) {
-		return dbMapper.selectOne(mapperId, param);
+	public Object selectOne(String queryId, HashMap<String, Object> param) {
+		return dbMapper.selectOne(queryId, param);
 	}
 
-	public Object selectList(String mapperId, HashMap<String, Object> param) {
-		return dbMapper.selectList(mapperId, param);
+	public Object selectList(String queryId, HashMap<String, Object> param) {
+		return dbMapper.selectList(queryId, param);
 	}
 
-	public Object insert(String mapperId, HashMap<String, Object> param) {
-		return dbMapper.insert(mapperId, param);
+	public Object insert(String queryId, HashMap<String, Object> param) {
+		return dbMapper.insert(queryId, param);
 	}
 
-	public Object update(String mapperId, HashMap<String, Object> param) {
-		return dbMapper.update(mapperId, param);
+	public Object update(String queryId, HashMap<String, Object> param) {
+		return dbMapper.update(queryId, param);
 	}
 
-	public Object delete(String mapperId, HashMap<String, Object> param) {
-		return dbMapper.delete(mapperId, param);
+	public Object delete(String queryId, HashMap<String, Object> param) {
+		return dbMapper.delete(queryId, param);
 	}
 
-	public void excelExport(HttpServletResponse response, String mapperId, HashMap<String, Object> param) {
+	public void excelExport(HttpServletResponse response, String queryId, HashMap<String, Object> param) {
 		SqlSession sqlSession = sqlSessionFactory.openSession();
 
 		// 메모리에 100개의 행을 유지합니다. 행의 수가 넘으면 디스크에 적습니다.
@@ -60,20 +62,42 @@ public class DBService {
 		Sheet sheet = wb.createSheet();
 
 		try {
-			sqlSession.select(mapperId, param, new ResultHandler<HashMap<String, Object>>() {
+
+			int offset = 0;
+			int limit = 1;
+			RowBounds rowBounds = new RowBounds(offset, limit);
+			List<HashMap<String, Object>> result = sqlSession.selectList(queryId, param, rowBounds);
+			if (!result.isEmpty()) {
+				Row row = sheet.createRow(0);
+
+				Cell cell = null;
+				int columnCount = 0;
+				HashMap<String, Object> dbRow = result.get(0);
+				for (String key : dbRow.keySet()) {
+					cell = row.createCell(columnCount);
+					cell.setCellValue(String.valueOf(key));
+					columnCount++;
+				}
+			}
+
+			sqlSession.select(queryId, param, new ResultHandler<HashMap<String, Object>>() {
 				@Override
 				public void handleResult(ResultContext context) {
+
 					HashMap<String, Object> dbRow = (HashMap<String, Object>) context.getResultObject();
-					Row row = sheet.createRow(context.getResultCount() - 1);
+					Row row = sheet.createRow(context.getResultCount());
 					Cell cell = null;
-					cell = row.createCell(0);
-					cell.setCellValue(String.valueOf(dbRow.get("id")));
-					cell = row.createCell(1);
-					cell.setCellValue(String.valueOf(dbRow.get("artist")));
-					cell = row.createCell(2);
-					cell.setCellValue(String.valueOf(dbRow.get("title")));
-					cell = row.createCell(3);
-					cell.setCellValue(String.valueOf(dbRow.get("lyrics")));
+					int columnCount = 0;
+					for (String key : dbRow.keySet()) {
+						Object value = dbRow.get(key);
+						cell = row.createCell(columnCount);
+						if (value instanceof Number) {
+							cell.setCellValue(Double.parseDouble(String.valueOf(value)));
+						} else {
+							cell.setCellValue(String.valueOf(value));
+						}
+						columnCount++;
+					}
 				}
 			});
 
@@ -89,7 +113,7 @@ public class DBService {
 			OutputStream out = null;
 			try {
 				out = response.getOutputStream();
-				byte[] data = new String("fail..").getBytes();
+				byte[] data = new String(e.toString()).getBytes();
 				out.write(data, 0, data.length);
 			} catch (Exception ignore) {
 				ignore.printStackTrace();
