@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.furiganahub.api.dao.DbDao">
+<mapper namespace="common">
     <!-- /* select dual */ -->
+    <select id="getEcho" parameterType="HashMap"  resultType="Object">
+    	SELECT #{ECHO_TEXT} ECHO_TEXT
+    </select>
     <select id="getSID"  resultType="Object">
     	SELECT SEQ_OBJECT_SID_NEXTVAL() SID
     </select>
-    <select id="getNow"  resultType="Object">
-        SELECT NOW()
+    <select id="getNow" parameterType="HashMap"  resultType="Object">
+        SELECT NOW() NOW
     </select>
- 	<select id="getBible" parameterType="HashMap" resultType="HashMap">
-        SELECT 	id, title, artist,lyrics
-        FROM	Songs
-        limit 	${limit}     
+ 	<select id="SEQ_OBJECT_SID" parameterType="HashMap" resultType="HashMap">
+        SELECT 	*
+        FROM	SEQ_OBJECT_SID   
     </select>
     <select id="procedureQuery" statementType="CALLABLE" parameterType="HashMap" resultType="ResultSet">
     	{ call ${PROCEDURE_STR} }

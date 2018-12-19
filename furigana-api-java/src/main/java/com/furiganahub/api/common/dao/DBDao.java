@@ -1,4 +1,4 @@
-package com.furiganahub.api.dao;
+package com.furiganahub.api.common.dao;
 
 import java.util.HashMap;
 
@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public class DbDao {
+public class DBDao {
 	@Autowired
 	private SqlSession sqlSession;
 

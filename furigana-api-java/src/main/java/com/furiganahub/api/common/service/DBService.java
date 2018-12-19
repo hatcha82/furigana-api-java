@@ -1,7 +1,15 @@
-package com.furiganahub.api.service;
+package com.furiganahub.api.common.service;
 
 import java.io.OutputStream;
+import java.io.Reader;
+import java.sql.Clob;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Types;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -16,12 +24,10 @@ import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.furiganahub.api.dao.DbDao;
-
 @Service
-public class DbService {
+public class DBService {
 	@Autowired
-	DbDao dbMapper;
+	com.furiganahub.api.common.dao.DBDao dbMapper;
 
 	@Autowired
 	private SqlSessionFactory sqlSessionFactory;
@@ -108,12 +114,75 @@ public class DbService {
 		}
 	}
 
-	public Object excuteSP(String string, HashMap<String, Object> param) {
-		String PROCEDURE_STR = "PCM_GRID_MASTER_L004('SELECT 1;')";
-		param.put("PROCEDURE_STR", PROCEDURE_STR);
+	private ArrayList<Map<String, Object>> resultSetToList(ResultSet rs) throws SQLException {
+		ResultSetMetaData md = rs.getMetaData();
+		int ColumnType = 0;
+		int columns = md.getColumnCount();
+		ArrayList<Map<String, Object>> rows = new ArrayList<Map<String, Object>>();
+		while (rs.next()) {
+			Map<String, Object> row = new HashMap<String, Object>(columns);
+			for (int i = 1; i <= columns; ++i) {
+				ColumnType = md.getColumnType(i);
+				if (Types.CLOB == ColumnType) {
+					// mysql for md.getColumnLabel(i)
+					// oracle for md.getColumnName(i)
 
-		param.put("RESULT_SET", dbMapper.selectList("com.furiganahub.api.dao.DbDao.procedureQuery", param));
-		return param;
+					row.put(md.getColumnLabel(i), getClob(rs, i));
+				} else {
+					row.put(md.getColumnLabel(i), rs.getObject(i));
+				}
+
+			}
+			rows.add(row);
+		}
+		return rows;
+	}
+
+	private Object getClob(Clob clob) {
+		StringBuffer output = new StringBuffer();
+		try {
+			Reader input = clob.getCharacterStream();
+			char[] buffer = new char[1024];
+			int byteRead;
+			while ((byteRead = input.read(buffer, 0, 1024)) != -1) {
+				output.append(buffer, 0, byteRead);
+			}
+			input.close();
+		} catch (Exception e) {
+
+		}
+		return output.toString();
+
+	}
+
+	private String getClob(ResultSet rs, int i) {
+		// TODO Auto-generated method stub
+		String text = "";
+		Clob clob;
+		try {
+
+			clob = rs.getClob(i);
+			if (clob != null) {
+				text = clob.getSubString(1, (int) clob.length());
+			}
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			text = "";
+		}
+
+		// materialize CLOB onto client
+
+		/*
+		 * 
+		 * StringBuffer output = new StringBuffer();
+		 * 
+		 * try { Reader input = rs.getCharacterStream("content"); char[] buffer = new
+		 * char[1024]; int byteRead; while((byteRead=input.read(buffer,0,1024))!=-1){
+		 * output.append(buffer,0,byteRead); } input.close(); } catch (Exception e) { //
+		 * TODO: handle exception } output.toString();
+		 */
+		return text;
 	}
 
 }
